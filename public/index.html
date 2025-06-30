@@ -19,7 +19,7 @@
   </form>
 
   <script>
-    const BACKEND_URL = 'https://gauri.onrender.com';
+
 
     document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("loginForm");
@@ -30,7 +30,7 @@
         const password = document.getElementById("password").value;
 
         try {
-          const res = await fetch(`${BACKEND_URL}/login`, {
+          const res = await fetch(`/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
