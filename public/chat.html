@@ -26,8 +26,8 @@ console.log("congratualtions , you entered the right number"); </script>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const BACKEND_URL = 'https://gauri18.onrender.com';
-    const socket = io(BACKEND_URL);
+  
+    const socket = io();
     const chatBox = document.getElementById("chatBox");
     const username = localStorage.getItem("username");
 
@@ -44,7 +44,7 @@ console.log("congratualtions , you entered the right number"); </script>
       Notification.requestPermission();
     }
 
-    fetch(`${BACKEND_URL}/messages`)
+    fetch(`/messages`)
       .then(res => res.json())
       .then(data => {
         data.forEach(addMessage);
@@ -85,7 +85,7 @@ console.log("congratualtions , you entered the right number"); </script>
     }
 
     function clearChat() {
-      fetch(`${BACKEND_URL}/clear`, { method: 'POST' })
+      fetch(`/clear`, { method: 'POST' })
         .then(() => {
           chatBox.innerHTML = '';
         });
