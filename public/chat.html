@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TogetherTalk</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body background="./v7.jpg" >
+  <script>let gamenum = "0511";
+let userNum = prompt("Guess the game number :");
+while(userNum !== gamenum){  //game
+    userNum  = prompt("wrong");
+}
+console.log("congratualtions , you entered the right number"); </script>
+ <h2 align="center" >TogetherTalk💗</h2>
+  
+  <div id="chatBox"></div>
+  <p align="center"><input type="text" id="message" placeholder="Type message...">
+  <button onclick="sendMessage()">Send</button> </p>
+
+  <p align="center"><button onclick="clearChat()" id="clearBtn">Clear Chat</button>
+  <button onclick="logout()" id="logoutBtn">Logout</button></p>
+
+  
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const BACKEND_URL = 'https://gauri.onrender.com';
+    const socket = io(BACKEND_URL);
+    const chatBox = document.getElementById("chatBox");
+    const username = localStorage.getItem("username");
+
+    if (!username) {
+      window.location.href = "index.html";
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker Registered'));
+    }
+
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    fetch(`${BACKEND_URL}/messages`)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(addMessage);
+      });
+
+    function addMessage(msg) {
+      const div = document.createElement("div");
+      div.textContent = `${msg.user}: ${msg.text}`;
+      chatBox.appendChild(div);
+    }
+
+    socket.on("new-message", msg => {
+      addMessage(msg);
+      if (msg.user !== username) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg) {
+            reg.showNotification("Messenger", {
+              body: "You have a new message",
+              data: { url: "index.html" },
+              requireInteraction: true,
+              badge: "v8.png",
+              icon: "v8.png"
+            });
+          }
+        });
+        const sound = document.getElementById("notifSound");
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+      }
+    });
+
+    function sendMessage() {
+      const text = document.getElementById("message").value;
+      const msg = { user: username, text };
+      socket.emit("new-message", msg);
+      document.getElementById("message").value = "";
+    }
+
+    function clearChat() {
+      fetch(`${BACKEND_URL}/clear`, { method: 'POST' })
+        .then(() => {
+          chatBox.innerHTML = '';
+        });
+    }
+
+    function logout() {
+      localStorage.removeItem("username");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
